@@ -29,7 +29,7 @@ void Lidar::begin(HardwareSerial& serial, int rx, int tx)
         agvAngle = &dummyValue;
     }
 
-    xTaskCreatePinnedToCore( //#SoundCloud rapper name, lil' task X
+    xTaskCreatePinnedToCore(
         Lidar::lidarTask,
         "LidarTask",
         1024, //should be enough mem
