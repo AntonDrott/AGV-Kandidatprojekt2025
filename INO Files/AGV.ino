@@ -143,9 +143,7 @@ void setup() {
   delay(1000);
   com.begin(SerialBT);
 
-  //com.lastMsg = "PATH(0:100,80:250,200:320,300)";
     bv.cycle = false;
-
 }
 
 bool adaptive = false;
@@ -156,10 +154,6 @@ void loop() {
   {
     eIMU.yawEst = 0;
   }
-  // if(com.lastMsg != "")
-  // {
-  //   Serial.println(com.lastMsg);
-  // }
   scans = lidar.getPointMeasurements();
   
   dwm.dwm_pos_get();
@@ -181,34 +175,14 @@ void loop() {
   if(com.RESETPATH)
   {
     com.ack();
-    //Serial.println("Ok, resetting");
     com.RESETPATH = false;
-    //com.sendMessage("RESETPATH");
-    //com.sendMessage("Path instructions received:");
-    //com.sendMessage(com.lastMsg);
     UpdatePath(com.lastMsg);
     delay(5);
     com.sendMessage("LENGTH: " + String(com.pathLength));
     nextTarget();
     Serial2.println("AUTO_ANGLE_ON");
   }
-  // if (com.runTask == true)
-  // {
-  //   //Serial2.println("RUN");
-  //   //Serial2.println("AUTO_ANGLE_ON");
-  //   safeSend("RUN");
-  //   Serial.println("RUN Received");
-  //   com.sendMessage("RUN received.");
-  //   safeSend("AUTO_ON");
-  //   com.runTask = false; //run handled, reset
-  //   com.ack();
-  // }
-  // else if(com.STOP)
-  // {
-  //   safeSend("STOP");
-  //   com.STOP = false; //stop handled, reset
-  //   com.ack();
-  // }
+
 
   if(Serial2.available() > 0)
   {
@@ -262,8 +236,6 @@ void loop() {
     }
     else if(data == "DOCK")
     {
-      //dockingComplete = false;
-      //docking = true;
       dock();
     }
     else
@@ -274,12 +246,9 @@ void loop() {
     data = "";
   }
   
-
-  //if(abs(position.x/10 - pathing_queue[currentIndex].x) < margin && abs(position.y/10 - pathing_queue[currentIndex].y) < margin  && !docking && com.pathLength > 0 && running && mode != IDLE) //
   if(abs(position.x/10 - pathing_queue[currentIndex].x) < margin && abs(position.y/10 - pathing_queue[currentIndex].y) < margin && com.pathLength > 0) // removed mode != IDLE && mode != DOCKING
   {
     currentIndex++;
-
 
     nextTarget();
   }
@@ -287,7 +256,6 @@ void loop() {
   {
     digitalWrite(dockEnable,LOW);
   }
-
 
   if(com.mapRequest)
   {
@@ -303,8 +271,6 @@ void loop() {
   delay(20);
   if (com.runTask == true)
   {
-    //Serial2.println("RUN");
-    //Serial2.println("AUTO_ANGLE_ON");
     safeSend("RUN");
     Serial.println("RUN Received");
     com.sendMessage("RUN received.");
@@ -327,27 +293,19 @@ void updateAngle()
   adjustedAngle = (360 - eIMU.yawEst*180/PI);
   if(adjustedAngle < 0) {adjustedAngle += 360;}
   else if(adjustedAngle >= 360){adjustedAngle-= 360;}
-
-  //adjustedAngle = std::clamp(adjustedAngle,0,359);
-
-  //Serial2.println("POS:"+ String(adjustedAngle) + "," + String((position.x/10)) + "," + String(position.y/10));
   Serial2.println("POS:"+ String(adjustedAngle) + "," + String((filteredPos.x)) + "," + String(filteredPos.y));
-
 
 }
 
 void nextTarget()
 {
-  //com.sendMessage("Calling nextTarget()");
   com.sendMessage("Target: " + String(pathing_queue[currentIndex].x) + "," + String(pathing_queue[currentIndex].y));
   int newX = pathing_queue[currentIndex].x;
   int newY = pathing_queue[currentIndex].y;
   String msg = "TARGET:" + String(com.receivedAngle) + "," + String(newX) + "," + String(newY);
   safeSend(msg);
-  //Serial.println(msg);
   if(currentIndex >= com.pathLength && com.pathLength > 0)
   {
-    //currentIndex = 0;
     com.pathLength = 0;
     Serial2.println("AUTO_OFF");
 
@@ -355,12 +313,12 @@ void nextTarget()
     {
       case PATHING:
       dock();
-
       break;
+      
       case MAPPING:
-      //com.sendMap(scans, com.MAPRES);
       mode = IDLE;
       break;
+      
       case RETURNING:
       com.sendMessage("Returned to starting position.");
       mode = IDLE;
@@ -378,7 +336,6 @@ void dock()
   Serial2.println("DOCK");
   delay(100); //give motor system time to flush out data
   digitalWrite(dockEnable, HIGH);
-  //eIMU.gz = 0;
   int loopLimit = 400;
   int i = 0;
   Serial.print("Attempting to dock.");
@@ -423,9 +380,7 @@ void updateBluetooth()
   if(i >= btDelay)
   {
     i = 0;
-    //com.sendPos(adjustedAngle, position.x/10, position.y/10);
     com.sendPos(adjustedAngle, filteredPos.x , filteredPos.y);
-    //com.sendMap(scans, com.MAPRES);
   }
   else
   {
@@ -436,13 +391,10 @@ void updateBluetooth()
 void UpdatePath(String s)
 {
   currentIndex = 0;
-  //Serial.println("UpdatePath paramter:");
-  //Serial.println(s);
   ScanPoint temp_point;
   int i = s.indexOf("(");
   s = s.substring(i+1); //Remove "PATH(" from data
   int M = s.substring(0,s.indexOf(":")).toInt();
-  //com.sendMessage(String(M));
   if(M <= 360)
   {
       com.receivedAngle = M;
@@ -478,7 +430,6 @@ void UpdatePath(String s)
       temp_point.y = s.substring(i+1,end).toInt();
       s = "";
     }
-
     pathing_queue[index] = temp_point;
     index ++;
   }
@@ -498,7 +449,6 @@ String printMode(MODE m)
   case MAPPING: return "MAPPING";
   case IDLE: return "IDLE";
   }
-
 }
 
 void blinkTask(void *params)
