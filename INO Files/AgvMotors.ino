@@ -18,8 +18,6 @@ QTRSensors qtr;
 int step = 600;
 bool dockLoop = false;
 
-
-
 float measureDistance()
 {
   digitalWrite(TRIG, LOW);
@@ -70,34 +68,29 @@ void setup() {
   agv.motorLB.m = 31;
   agv.motorRB.m = 34;
 
-    agv.settings.speed = 0.4;
-    agv.settings.pwmFreq = 6000;
-    agv.settings.pwmRes = 8;
-    agv.settings.on = false;
-    agv.settings.angleMargin = 2;
-    agv.settings.rotationalAdjustDampening = 1.25;
+  agv.settings.speed = 0.4;
+  agv.settings.pwmFreq = 6000;
+  agv.settings.pwmRes = 8;
+  agv.settings.on = false;
+  agv.settings.angleMargin = 2;
+  agv.settings.rotationalAdjustDampening = 1.25;
 
   Serial.println("Starting up motors...");
-    agv.begin();
-    delay(1000);
-    agv.settings.targetRotation = 0;
-    agv.settings.autoAdjustAngle = true;
-    agv.settings.angleSnapping = false;
-    agv.settings.snappingAngle = 45;
-    agv.settings.externalControl = false;
-    agv.settings.on = true;
-    
+  agv.begin();
+  delay(1000);
+  agv.settings.targetRotation = 0;
+  agv.settings.autoAdjustAngle = true;
+  agv.settings.angleSnapping = false;
+  agv.settings.snappingAngle = 45;
+  agv.settings.externalControl = false;
+  agv.settings.on = true;
 }
-
 void loop() { 
 
   if(interCom.available() > 0)
   {
     String packet = interCom.readStringUntil('\n');
     packet.trim();
-    //Serial.print("WRAMI: ");
-    //Serial.println(packet);
-
     if(packet.startsWith("POS:"))
     {
       packet = packet.substring(packet.indexOf(":") +1);
@@ -108,18 +101,13 @@ void loop() {
       int y = packet.substring(j+1).toInt();
 
       agv.setState(angle,x,y);
-
-      //Serial.println(String(agv.agvState.angle) + "deg," + String(agv.agvState.x) + "," + String(agv.agvState.y));
     }
     else if(packet.startsWith("TARGET:"))
     {
       echo(packet);
-      //Serial.print("Packet: ");
-      //Serial.println(packet);
+
       int i = packet.indexOf(":");
       packet = packet.substring(i+1);
-      //Serial.print("->");
-      //Serial.println(packet);
       i = packet.indexOf(",");
       agv.settings.targetRotation = packet.substring(0,i).toInt();
       packet = packet.substring(i+1);
@@ -127,22 +115,16 @@ void loop() {
       agv.settings.targetX = packet.substring(0,i).toInt();
       packet = packet.substring(i+1);
       agv.settings.targetY = packet.toInt();
-
-      //Serial.print("TARGET SET TO: ");
-      //Serial.println(String(agv.settings.targetX) + "," + String(agv.settings.targetY));
     }
     else if(packet == "STOP")
     {
       echo(packet);
       agv.settings.on = false;
-      //Serial.println("AGV -> OFF");
-
     }
     else if(packet == "RUN")
     {
       echo(packet);
       agv.settings.on = true;
-      //Serial.println("AGV -> ON");
       agv.settings.speed = 0.4;
     }
     else if(packet == "AUTO_ANGLE_ON")
@@ -157,13 +139,11 @@ void loop() {
     {
       echo(packet);
       agv.settings.externalControl = true;
-      //Serial.println("AUTO ON");
     }
     else if(packet == "AUTO_OFF")
     {
       echo(packet);
       agv.settings.externalControl = false;
-      //Serial.println("AUTO OFF");
     }
     else if(packet == "ADAPTIVE_OFF")
     {
@@ -188,7 +168,6 @@ void loop() {
       dockLoop = false;
       agv.settings.autoAdjustAngle = true;
       agv.settings.adaptiveSpeed = true; 
-      //Serial.println("END_DOCK Received");
     }
     packet = "";
   }
@@ -219,7 +198,6 @@ void loop() {
             delay(200);
           }
         }
-        
       }
       else if(dist > 4)
       {
@@ -268,9 +246,7 @@ void loop() {
     agv.settings.adaptiveSpeed = true;
     agv.settings.speed = spd;
   }
-
   delay(20);
-
 }
 
 void echo(String msg)
