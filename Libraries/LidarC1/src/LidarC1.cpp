@@ -93,10 +93,13 @@ void Lidar::lidarTask(void* parameter) //FreeRTOS requiers void* for whaterver r
 
                 distance = ((data[4] << 8) | data[3])/40;
 
+                lidar->polarMeasurements[angle] = distance;
+
+                /*
                     tempPoint.x = short(cos(float(angle*PI/180)) * distance);
                     tempPoint.y = short(sin(float(-angle*PI/180)) * distance);
                     lidar->measurements[angle] = tempPoint; //store x,y distance in array
-
+                */
             }
             else lidar->lidarSerial->read(); //trash byte
         }

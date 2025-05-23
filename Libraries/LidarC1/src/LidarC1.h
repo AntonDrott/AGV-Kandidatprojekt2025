@@ -6,6 +6,7 @@
 #include "shared_structs.h"
 #include "LidarStructs.h"
 
+
 class Lidar
 {
     public:
@@ -17,9 +18,13 @@ class Lidar
         bool POLAR = true;
         int estimatedX = 0;
         int estimatedY = 0;
-        std::array<ScanData,360> getPolarMeasurements() const
+
+        std::array<ScanPoint,360> measurements;
+        std::array<int,360> polarMeasurements;
+
+        std::array<int,360> getPolarMeasurements() const
         {
-            std::array<ScanData,360> copy;
+            std::array<int,360> copy;
             std::copy(std::begin(polarMeasurements), std::end(polarMeasurements), copy.begin());
             return copy;
         }
@@ -32,9 +37,7 @@ class Lidar
 
     private:
         HardwareSerial* lidarSerial = nullptr;
-        std::array<ScanPoint,360> measurements;
-        //ScanPoint prevMeasurements[360];
-        ScanData polarMeasurements[360];
+
         void resetMeasurements();
         int* agvAngle = nullptr;
         int dummyValue = 0;
